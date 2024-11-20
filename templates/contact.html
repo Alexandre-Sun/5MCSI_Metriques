@@ -1,92 +1,69 @@
-from flask import Flask, request, render_template_string
-
-app = Flask(__name__)
-
-# Route vers la page de contact
-@app.route('/contact/')
-def contact():
-    return render_template_string('''
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Contactez-nous</title>
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    margin: 20px;
-                    background-color: #f5f5f5;
-                }
-                .container {
-                    max-width: 600px;
-                    margin: auto;
-                    padding: 20px;
-                    background: white;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                }
-                h1 {
-                    text-align: center;
-                    color: #333;
-                }
-                label {
-                    font-weight: bold;
-                    margin-top: 10px;
-                }
-                input, textarea {
-                    width: 100%;
-                    padding: 10px;
-                    margin-top: 5px;
-                    margin-bottom: 15px;
-                    border: 1px solid #ddd;
-                    border-radius: 5px;
-                }
-                button {
-                    background-color: #007BFF;
-                    color: white;
-                    padding: 10px 20px;
-                    border: none;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    width: 100%;
-                }
-                button:hover {
-                    background-color: #0056b3;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>Contactez-nous</h1>
-                <form action="/submit/" method="POST">
-                    <label for="nom">Nom:</label>
-                    <input type="text" id="nom" name="nom" required>
-                    
-                    <label for="prenom">Prénom:</label>
-                    <input type="text" id="prenom" name="prenom" required>
-                    
-                    <label for="message">Votre message:</label>
-                    <textarea id="message" name="message" rows="5" required></textarea>
-                    
-                    <button type="submit">Envoyer</button>
-                </form>
-            </div>
-        </body>
-        </html>
-    ''')
-
-# Route pour traiter le formulaire
-@app.route('/submit/', methods=['POST'])
-def submit():
-    nom = request.form['nom']
-    prenom = request.form['prenom']
-    message = request.form['message']
-    return f'''
-        <h1>Merci pour votre message, {prenom} {nom}!</h1>
-        <p>Votre message:</p>
-        <blockquote>{message}</blockquote>
-    '''
-
-if __name__ == '__main__':
-    app.run(debug=True)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contactez-nous</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Contactez-nous</h1>
+        <form action="/submit/" method="POST">
+            <label for="nom">Nom:</label>
+            <input type="text" id="nom" name="nom" required>
+            
+            <label for="prenom">Prénom:</label>
+            <input type="text" id="prenom" name="prenom" required>
+            
+            <label for="message">Votre message:</label>
+            <textarea id="message" name="message" rows="5" required></textarea>
+            
+            <button type="submit">Envoyer</button>
+        </form>
+    </div>
+</body>
+</html>
