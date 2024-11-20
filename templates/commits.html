@@ -1,0 +1,78 @@
+from flask import Flask, jsonify, render_template_string
+import requests
+from datetime import datetime
+
+app = Flask(__name__)
+
+# Route pour extraire les minutes d'une date
+@app.route('/extract-minutes/<date_string>')
+def extract_minutes(date_string):
+    date_object = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
+    minutes = date_object.minute
+    return jsonify({'minutes': minutes})
+
+# Route pour afficher le graphique des commits
+@app.route('/commits/')
+def commits_chart():
+    # URL de l'API GitHub
+    api_url = 'https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits'
+
+    # Appel à l'API pour récupérer les commits
+    response = requests.get(api_url)
+    commits = response.json()
+
+    # Extraire les minutes des dates des commits
+    commit_minutes = {}
+    for commit in commits:
+        commit_date = commit['commit']['author']['date']
+        date_object = datetime.strptime(commit_date, '%Y-%m-%dT%H:%M:%SZ')
+        minute = date_object.minute
+        commit_minutes[minute] = commit_minutes.get(minute, 0) + 1
+
+    # Préparer les données pour le graphique
+    data_points = [[str(minute), count] for minute, count in sorted(commit_minutes.items())]
+
+    # Page HTML avec Google Charts
+    html_template = '''
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Graphique des Commits</title>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+            google.charts.load('current', {'packages':['corechart']});
+            google.charts.setOnLoadCallback(drawChart);
+
+            function drawChart() {
+                var data = google.visualization.arrayToDataTable([
+                    ['Minute', 'Commits'],
+                    {% for minute, count in data %}
+                    ['{{ minute }}', {{ count }}],
+                    {% endfor %}
+                ]);
+
+                var options = {
+                    title: 'Nombre de commits par minute',
+                    hAxis: { title: 'Minute' },
+                    vAxis: { title: 'Nombre de commits' },
+                    legend: { position: 'none' },
+                    bar: { groupWidth: '75%' }
+                };
+
+                var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+                chart.draw(data, options);
+            }
+        </script>
+    </head>
+    <body>
+        <div id="chart_div" style="width: 900px; height: 500px;"></div>
+    </body>
+    </html>
+    '''
+
+    return render_template_string(html_template, data=data_points)
+
+if __name__ == '__main__':
+    app.run(debug=True)
