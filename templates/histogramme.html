@@ -1,48 +1,47 @@
-
 <html>
   <head>
+    <meta charset="UTF-8" />
+    <title>Metrique</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-      google.charts.load('current', { 'packages': ['bar'] });
-      google.charts.setOnLoadCallback(fetchWeatherData);
+  </head>
+  <body>
+    <div id="chart_div"></div>
+    <script>
+      google.charts.load('current', { packages: ['corechart'] });
+      google.charts.setOnLoadCallback(drawBackgroundColor);
+      
+      function drawBackgroundColor() {
+        function drawChart(data) {
+          // Convertir les données récupérées en un tableau utilisable par Google Charts
+          var dataTable = new google.visualization.DataTable();
+          dataTable.addColumn('string', 'Date');
+          dataTable.addColumn('number', 'Valeur');
+          data.results.forEach(entry => {
+            var date = new Date(entry.Jour * 1000);
+            dataTable.addRow([date.toLocaleDateString(), entry.temp]);
+          });
 
-      function fetchWeatherData() {
+          // Configurer les options du graphique en colonnes
+          var options = {
+            title: 'Évolution des températures de la ville de Tawarano',
+            legend: { position: 'bottom' },
+            bar: { groupWidth: '75%' },
+            hAxis: { title: 'Date' },
+            vAxis: { title: 'Température' }
+          };
+
+          // Dessiner le graphique en colonnes
+          var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+          chart.draw(dataTable, options);
+        }
+
+        // Récupération de données depuis notre API /tawarano/
         fetch('/tawarano/')
           .then(response => response.json())
           .then(data => {
             drawChart(data);
-          })
-      }
-
-      function drawChart(apiData) {
-        const chartData = [['Date', 'Température Min (°C)', 'Température Max (°C)']];
-        apiData.forEach(day => {
-          chartData.push([day.date, day.temp_min, day.temp_max]);
-        });
-
-        const data = google.visualization.arrayToDataTable(chartData);
-
-        const options = {
-          width: 800,
-          legend: { position: 'top' },
-          chart: {
-            title: 'Prévisions météo de Tawarano',
-            subtitle: 'Températures minimales et maximales sur plusieurs jours'
-          },
-          axes: {
-            x: {
-              0: { side: 'bottom', label: 'Dates' }
-            }
-          },
-          bar: { groupWidth: "75%" }
-        };
-
-        const chart = new google.charts.Bar(document.getElementById('weather_chart_div'));
-        chart.draw(data, google.charts.Bar.convertOptions(options));
+          });
       }
     </script>
-  </head>
-  <body>
-    <div id="weather_chart_div" style="width: 800px; height: 600px;"></div>
   </body>
 </html>
